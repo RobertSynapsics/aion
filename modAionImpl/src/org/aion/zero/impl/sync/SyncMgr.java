@@ -85,6 +85,7 @@ public final class SyncMgr {
     private IP2pMgr p2pMgr;
     private IEventMgr evtMgr;
     private BlockHeaderValidator blockHeaderValidator;
+    private PeerRepMgr peerReputationManager;
 
     /**
      * Queues
@@ -166,10 +167,11 @@ public final class SyncMgr {
         return this.sentHeaders.get(Arrays.hashCode(_nodeId));
     }
 
-    public void init(final IP2pMgr _p2pMgr, final IEventMgr _evtMgr, final int _syncForwardMax,
+    public void init(final IP2pMgr _p2pMgr, final PeerRepMgr _peerRepMgr, final IEventMgr _evtMgr, final int _syncForwardMax,
             final int _blocksQueueMax, final boolean _showStatus) {
         showStatus = _showStatus;
         this.p2pMgr = _p2pMgr;
+        this.peerReputationManager = _peerRepMgr;
         this.blockchain = AionBlockchainImpl.inst();
         this.evtMgr = _evtMgr;
         this.syncForwardMax = _syncForwardMax;
@@ -224,6 +226,7 @@ public final class SyncMgr {
     @SuppressWarnings("unchecked")
     public void validateAndAddHeaders(final byte[] _nodeId, final List<A0BlockHeader> _headers) {
 
+        //TODO @Robert if we have invalid or corrupt data here modify peer reputation
         if (_headers == null || _headers.isEmpty())
             return;
 
@@ -319,6 +322,7 @@ public final class SyncMgr {
             AionBlock selfBlock = this.blockchain.getBestBlock();
             long selfBest = selfBlock.getNumber();
 
+            //TODO @Robert here only select peers based on reputation
             INode node = p2pMgr.getRandom();
             boolean sent = false;
             if (node != null) {
@@ -392,6 +396,7 @@ public final class SyncMgr {
                 }
 
                 ImportResult importResult = this.blockchain.tryToConnect(b);
+                //TODO @Robert here change the reputation of the node based on the following result
                 switch (importResult) {
                 case IMPORTED_BEST:
                     if (LOG.isInfoEnabled()) {

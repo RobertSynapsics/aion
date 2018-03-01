@@ -65,6 +65,7 @@ public abstract class AbstractRepository<BLK extends AbstractBlock<BH, ? extends
     protected static final String DETAILS_DB = "details";
     protected static final String STORAGE_DB = "storage";
     protected static final String STATE_DB = "state";
+    protected static final String PEER_REP_DB = "reputation";
 
     // State trie.
     protected Trie worldState;
@@ -81,6 +82,7 @@ public abstract class AbstractRepository<BLK extends AbstractBlock<BH, ? extends
     protected IByteArrayKeyValueDatabase indexDatabase;
     protected IByteArrayKeyValueDatabase blockDatabase;
     protected IByteArrayKeyValueDatabase stateDatabase;
+    protected IByteArrayKeyValueDatabase peerReputationDatabase;
 
     protected Collection<IByteArrayKeyValueDatabase> databaseGroup;
 
@@ -192,6 +194,10 @@ public abstract class AbstractRepository<BLK extends AbstractBlock<BH, ? extends
             this.blockDatabase = connectAndOpen(sharedProps);
             databaseGroup.add(blockDatabase);
 
+            sharedProps.setProperty("db_name", PEER_REP_DB);
+            this.peerReputationDatabase = connectAndOpen(sharedProps);
+            databaseGroup.add(peerReputationDatabase);
+
             // Setup the cache for transaction data source.
             this.detailsDS = new DetailsDataStore<>(detailsDatabase, storageDatabase, this.cfg);
             stateDSPrune = new JournalPruneDataSource<>(stateDatabase);
@@ -204,6 +210,10 @@ public abstract class AbstractRepository<BLK extends AbstractBlock<BH, ? extends
     @Override
     public BSB getBlockStore() {
         return this.blockStore;
+    }
+
+    public IByteArrayKeyValueDatabase getPeerReputationDatabase() {
+        return peerReputationDatabase;
     }
 
     @Override

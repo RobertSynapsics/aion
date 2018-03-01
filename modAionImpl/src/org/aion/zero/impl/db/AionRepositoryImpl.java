@@ -542,6 +542,15 @@ public class AionRepositoryImpl extends AbstractRepository<AionBlock, A0BlockHea
             } catch (Exception e) {
                 LOGGEN.error("block DB close exception", e);
             }
+            try {
+                if (peerReputationDatabase != null) {
+                    peerReputationDatabase.close();
+                    LOGGEN.info("peer reputation DB closed.");
+                    peerReputationDatabase = null;
+                }
+            } catch (Exception e) {
+                LOGGEN.error("Peer Reputation DB close exception", e);
+            }
         } finally {
             rwLock.writeLock().unlock();
         }
